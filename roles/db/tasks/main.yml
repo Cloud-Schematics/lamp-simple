@@ -1,0 +1,89 @@
+---
+  # This playbook contains common plays that will be run on all nodes.
+
+  - name: Download MySQL Community Repo
+    get_url:
+      url: https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+      dest: /tmp
+    tags: db
+  
+  - name: Install MySQL Community Repo
+    command : /usr/bin/rpm -ivh /tmp/mysql80-community-release-el7-3.noarch.rpm
+    ignore_errors: yes
+  
+  - name: Install MySQL Server
+    yum:
+      name: "mysql-server"
+      state: present
+  
+  - name: Start MySQL Server and enable it
+    service: name=mysqld state=started enabled=yes
+
+  - name: Change mysql root password and keep track in 
+    shell: |
+      password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
+      echo $password_match
+      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Abc@123abc'; flush privileges; "
+    ignore_errors: yes
+    notify: restart mysql
+  
+  - name: Install Mysql package
+    yum:
+      name: "{{ item }}"
+      state: installed
+    with_items:
+     - MySQL-python
+     - libselinux-python
+     - libsemanage-python
+  
+  - name: Configure SELinux to start mysql on any port
+    seboolean:
+      name: mysql_connect_any
+      state: true
+      persistent: yes
+    when: sestatus.rc != 0
+  
+  # - name: Create Mysql configuration file
+  #   template:
+  #     src: my.cnf.j2
+  #     dest: /etc/my.cnf
+  #   notify:
+  #   - restart mysql
+  
+  - name: Create Mysql configuration file 2
+    template:
+      src: my.cnf.j2
+      dest: /root/.my.cnf
+    notify:
+    - restart mysql
+  
+  - name: Start Mysql Service
+    service:
+      name: mysqld
+      state: started
+      enabled: yes
+  
+  - name: insert iptables rule
+    lineinfile:
+      dest: /etc/sysconfig/iptables
+      state: present
+      regexp: "{{ mysql_port }}"
+      insertafter: "^:OUTPUT "
+      line: "-A INPUT -p tcp  --dport 3306 -j  ACCEPT"
+    notify: restart iptables
+  
+  - name: Create Application Database
+    mysql_db:
+      name: "{{ dbname }}"
+      login_user: "{{ dbuser }}"
+      login_password: "{{ upassword }}"
+      state: present
+  
+  - name: Create Application DB User
+    mysql_user:
+      name: "newUser"
+      password: "{{ upassword }}"
+      priv: "*.*:ALL"
+      host: '%'
+      state: present
+  
