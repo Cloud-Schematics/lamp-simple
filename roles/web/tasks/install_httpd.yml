@@ -30,6 +30,11 @@
     state: started
     enabled: yes
 
+- name: test to see if selinux is running
+  command: getenforce
+  register: sestatus
+  changed_when: false
+
 - name: Configure SELinux to allow httpd to connect to remote database
   seboolean:
     name: httpd_can_network_connect_db
