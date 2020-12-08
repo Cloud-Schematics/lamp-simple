@@ -50,7 +50,7 @@
   #   notify:
   #   - restart mysql
   
-  - name: Create Mysql configuration file 2
+  - name: Create Mysql configuration file
     template:
       src: my.cnf.j2
       dest: /root/.my.cnf
