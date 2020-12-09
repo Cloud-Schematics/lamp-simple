@@ -44,3 +44,7 @@ database server.
 
 - IBM Cloud Schematics
     - User can use IBM Cloud Schematics to run this playbook. For complete information on IBM CLoud schematics actions refer to the document [here]().
+
+## Notes
+
+- For MySQL installation we are using this [url](https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm)

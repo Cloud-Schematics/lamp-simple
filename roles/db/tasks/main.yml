@@ -23,7 +23,7 @@
     shell: |
       password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
       echo $password_match
-      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'Abc@123abc'; flush privileges; "
+      mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY "{{ upassword }}"; flush privileges; "
     ignore_errors: yes
     notify: restart mysql
   
@@ -42,13 +42,6 @@
       state: true
       persistent: yes
     when: sestatus.rc != 0
-  
-  # - name: Create Mysql configuration file
-  #   template:
-  #     src: my.cnf.j2
-  #     dest: /etc/my.cnf
-  #   notify:
-  #   - restart mysql
   
   - name: Create Mysql configuration file
     template:
@@ -72,18 +65,17 @@
       line: "-A INPUT -p tcp  --dport 3306 -j  ACCEPT"
     notify: restart iptables
   
+  - name: Create Application DB User
+    mysql_user:
+      name: "{{ dbuser }}"
+      password: "{{ upassword }}"
+      priv: "*.*:ALL"
+      host: '%'
+      state: present
+
   - name: Create Application Database
     mysql_db:
       name: "{{ dbname }}"
       login_user: "{{ dbuser }}"
       login_password: "{{ upassword }}"
       state: present
-  
-  - name: Create Application DB User
-    mysql_user:
-      name: "newUser"
-      password: "{{ upassword }}"
-      priv: "*.*:ALL"
-      host: '%'
-      state: present
-  

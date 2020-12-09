@@ -4,7 +4,7 @@
 
 - name: Copy the code from repository
   git:
-    repo: https://github.com/bennojoy/mywebapp.git
+    repo: https://github.com/akhiljain23/html-app
     dest: /var/www/html/
 
 - name: Creates the index.php file
