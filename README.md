@@ -33,12 +33,17 @@ To provision Multitier VPC Bastion Host on IBM cloud follow the steps [here](htt
 ## Running the playbook
  The stack can be deployed using the following
 - command:
-    - ansible-playbook -i hosts site.yml --extra_vars vpc_name=<VPC_NAME> --extra_vars ssh_key_name=<SSH_KEY_NAME>
+    - ansible-playbook site.yml -e "upassword={password}  dbname={database-name}  dbuser={database-user}  mysql_port=3306  httpd_port=80" -i hosts
 
 
 ## Outputs
 
-Once done, you can check the results by browsing to http://localhost/index.php.
+Successful output should be something like:
+```
+PLAY RECAP *******************************************************************************************
+ws01                       : ok=22   changed=18   unreachable=0    failed=0    skipped=2    rescued=0    ignored=0
+```
+Once done, you can check the results by doing "curl http://localhost/index.php" in that machine.
 You should see a simple test page and a list of databases retrieved from the
 database server.
 
