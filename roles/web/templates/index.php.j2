@@ -14,9 +14,11 @@
  echo exec('hostname');
  Print  "</BR>";
 echo  "List of Databases: </BR>";
-        {% for host in groups['webserver'] %}
+        {% for key, value in groups.items() %}  
+    {% for host in groups[key] %}
                 $link = mysqli_connect('localhost', 'root', 'Abc@123abc') or die(mysqli_connect_error($link));
-        {% endfor %}
+    {% endfor %}
+{% endfor %}
         $res = mysqli_query($link, "SHOW DATABASES;");
         while ($row = mysqli_fetch_assoc($res)) {
                 echo $row['Database'] . "\n";
