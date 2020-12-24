@@ -16,7 +16,7 @@
 echo  "List of Databases: </BR>";
         {% for key, value in groups.items() %}  
     {% for host in groups[key] %}
-                $link = mysqli_connect('localhost', 'root', 'Abc@123abc') or die(mysqli_connect_error($link));
+                $link = mysqli_connect('{{ hostvars[host].ansible_default_ipv4.address }}', '{{ hostvars[host].dbuser }}', '{{ hostvars[host].upassword }}') or die(mysqli_connect_error($link));
     {% endfor %}
 {% endfor %}
         $res = mysqli_query($link, "SHOW DATABASES;");
