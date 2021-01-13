@@ -1,24 +1,23 @@
 # LAMP Stack
 -------------------------------------------
-Use this role to deploy LAMP stack components on IBM cloud VSI by using Ansible or IBM Cloud Schematics. 
+Use this role to deploy the LAMP stack components on an IBM cloud VSI by running RedHat Ansible locally or by using IBM Cloud Schematics Actions. 
 
     Linux
     Apache
     MySQL (mariadb)
     PHP
 
-These playbooks are meant to be a reference and starter's guide to building
-Ansible Playbooks. These playbooks were tested on CentOS 7.x so we recommend
-that you use CentOS or RHEL to test these modules. In this deployment we had 
-used [simple web application]() which greets with an Hello msg.
+These playbooks are intended to be a reference and starter's guide to building Ansible Playbooks for use with IBM Cloud and Schematics. These playbooks were tested on CentOS 7.x so we recommend that you use CentOS or RHEL to test these modules. In this deployment we deploy a [simple web application]() which greets the user with a "Hello" msg.
 
-This playbook is deployed/tested against IBM Cloud Multitier VPC Bastion Host. 
-To provision Multitier VPC Bastion Host on IBM cloud follow the steps [here](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
+Schematics Actions uses SSH to configure target VSIs on IBM Cloud. To ensure that all access to the target VSIs is secured it is assumed that SSH access is configured via a bastion host/jump server om IBM Cloud. This [IBM Cloud Automation](https://github.com/Cloud-Schematics) repo contains a number of example Terraform configs that deploy a VPC Gen 2 environment with bastion host access.   
+
+This playbook has been run and tested using VSIs in a VPC Gen2 environment, deployed using the IBM Cloud Multitier VPC Bastion LAMP example. 
+To provision Multitier VPC Bastion LAMP on IBM cloud follow the steps [here](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
 
 ## Prerequisites
 
- - Ansible 1.2.
- - [Multitier VPC Bastion Host](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
+ - Ansible 1.2.9
+ - [Multitier VPC Bastion LAMP](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
  - Manager service access role for IBM Cloud Schematics
  - SSH Key on IBM Cloud
 
@@ -30,21 +29,21 @@ To provision Multitier VPC Bastion Host on IBM cloud follow the steps [here](htt
 | ssh_key_name| SSH key name to connect to VSI | |
 
 
-## Running the playbook
- In hosts file update {target-host-ip}, {jump-server-ip} and respective ssh keys.
- The stack can be deployed using the following
+## Running the playbook locally
+ To run this example locally, create a hosts file in the root of the example folder and update it with the {target-host-ip}, {jump-server-ip} and respective ssh keys. Details of how to configure the host file manually can be found in the [Ansible documentation](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups). 
+ The stack can be deployed using the following 
 - command:
     - ansible-playbook site.yml -e "upassword={password}  dbname={database-name}  dbuser={database-user}  mysql_port=3306  httpd_port=80" -i hosts
 
 ## Running on IBM Cloud Schematics
 
-IBM Cloud schematics supports running ansible playbooks natively. You can try the same example through various entry points. 
+IBM Cloud Schematics supports running Ansible playbooks natively. You can try the same example through various entry points. 
 
-### Running by IBM Cloud Schematics API
+### Running Actions using the IBM Cloud Schematics API
 
-1. Create action payload. Action payload is a json object. Start with `{}` and add required fields. 
+1. Create a file containing the Schematics Action payload. The Action payload is a json object. Start with `{}` and add the required fields. 
 
-    - Add basic information for action like `name`, `description`, `location` you want the action to be in, `resource_group` and tag for identification. Make sure`name` is unique.  
+    - Add basic information for action like `name`, `description`, the Schematics `location` you want the Action to be placed in, `resource_group` and tag for identification. Ensure that the Action `name` is unique.  
 
     ```
     "name": "Example-1",
@@ -56,7 +55,7 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
     ]
     ```
 
-    - Add source for importing ansible playbooks. 
+    - Add the source repo for importing the Ansible playbooks. 
     ```
     "source_type": "GitHub", 
     "source": {
@@ -66,12 +65,12 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
          }
     }
     ```
-    - Add playbook which should run by default when `run` is triggered. Any playbook from the source can be selected. 
+    - Add the playbook which should run by default when `run` is triggered. Any playbook from the source repo can be selected. 
     ```
     "command_parameter": "site.yml"
     ```
 
-    - Add Credentials required o run the configuration. All credentials should be added as `name` and `value` and can be referred in target with the same name.
+    - Add the Credentials required o run the configuration. For deploying code to VSI's these will be the SSH private keys for the bastion host and target VSIs. All credentials should be added as `name` and `value` and will be referred in the target section with the same name.
     ```
     "credentials": [
       {
@@ -85,7 +84,7 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
       }
     ]
     ```
-    - Add Bastion host information. Refer the credentials provided in above step in `cred_ref`.
+    - Add Bastion host information. Refer to the credentials provided in the above step in `cred_ref`.
     ```
     "bastion_ref": {
       "name": "bastionhost",
