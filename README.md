@@ -62,7 +62,7 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
     "source": {
          "source_type" : "git",
          "git" : {
-              "git_repo_url": "https://github.com/rvsingh011/lamp-simple"
+              "git_repo_url": "https://github.com/Cloud-Schematics/lamp-simple"
          }
     }
     ```
