@@ -62,7 +62,7 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
     "source": {
          "source_type" : "git",
          "git" : {
-              "git_repo_url": "https://github.com/rvsingh011/lamp-simple"
+              "git_repo_url": "https://github.com/Cloud-Schematics/lamp-simple"
          }
     }
     ```
@@ -71,7 +71,7 @@ IBM Cloud schematics supports running ansible playbooks natively. You can try th
     "command_parameter": "site.yml"
     ```
 
-    - Add Credentials required o run the confrigation. All credntials should be added as `name` and `value` and can be reffered in target with the same name.
+    - Add Credentials required o run the configuration. All credentials should be added as `name` and `value` and can be referred in target with the same name.
     ```
     "credentials": [
       {
