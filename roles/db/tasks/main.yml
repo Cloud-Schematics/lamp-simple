@@ -42,6 +42,7 @@
       state: true
       persistent: yes
     when: sestatus.rc != 0
+    ignore_errors: yes
   
   - name: Create Mysql configuration file
     template:

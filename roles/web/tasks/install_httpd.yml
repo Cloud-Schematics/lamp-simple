@@ -41,3 +41,4 @@
     state: true
     persistent: yes
   when: sestatus.rc != 0
+  ignore_errors: yes
