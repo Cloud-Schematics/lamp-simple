@@ -1,231 +1,110 @@
 # LAMP Stack
--------------------------------------------
-Use this role to deploy the LAMP stack components on an IBM cloud VSI by running RedHat Ansible locally or by using IBM Cloud Schematics Actions. 
+
+LAMP stands for Linux, Apache, MySQL, and PHP. Together, they provide a proven set of software for delivering high-performance web applications.
+
+IBM Cloud Schematics provides powerful tools to automate your cloud infrastructure provisioning and management process, the configuration and operation of your cloud resources, and the deployment of your app workloads.  To do so, Schematics leverages open source projects, such as Terraform, Ansible, OpenShift, Operators, and Helm, and delivers these capabilities to you as a managed service. Rather than installing each open source project on your machine, and learning the API or CLI, you declare the tasks that you want to run in IBM Cloud and watch Schematics run these tasks for you. For more information about Schematics, see [About IBM Cloud Schematics](https://cloud.ibm.com/docs/schematics?topic=schematics-about-schematics).
+
+These playbooks are intended to be a reference and starter's guide to building Ansible Playbooks for use with IBM Cloud and Schematics. These playbooks were tested on CentOS 7.x so we recommend that you use CentOS or RHEL to test these modules. 
+
+
+## About this playbook
+
+This playbook is designed to to deploy the LAMP stack components on an IBM cloud VSI by running RedHat Ansible locally or by using IBM Cloud Schematics Actions.
 
     Linux
     Apache
     MySQL (mariadb)
     PHP
-
-These playbooks are intended to be a reference and starter's guide to building Ansible Playbooks for use with IBM Cloud and Schematics. These playbooks were tested on CentOS 7.x so we recommend that you use CentOS or RHEL to test these modules. In this deployment we deploy a [simple web application]() which greets the user with a "Hello" msg.
-
-Schematics Actions uses SSH to configure target VSIs on IBM Cloud. To ensure that all access to the target VSIs is secured it is assumed that SSH access is configured via a bastion host/jump server om IBM Cloud. This [IBM Cloud Automation](https://github.com/Cloud-Schematics) repo contains a number of example Terraform configs that deploy a VPC Gen 2 environment with bastion host access.   
-
+In this deployment we deploy a [simple web application]() which greets the user with a "Hello" msg.
 This playbook has been run and tested using VSIs in a VPC Gen2 environment, deployed using the IBM Cloud Multitier VPC Bastion LAMP example. 
-To provision Multitier VPC Bastion LAMP on IBM cloud follow the steps [here](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
 
 ## Prerequisites
+    
+To run this playbook, complete the following tasks:
+- Make sure that you have the required permissions to [create an IBM Cloud Schematics action](https://cloud.ibm.com/docs/schematics?topic=schematics-access).
+- Make sure that you have the required permissions to provision Multitier VPC Bastion LAMP on IBM cloud
+For example click [here](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
+- SSH Key on IBM Cloud
 
- - Ansible 1.2.9
- - [Multitier VPC Bastion LAMP](https://github.com/Cloud-Schematics/multitier-bastion-vpc-lamp)
- - Manager service access role for IBM Cloud Schematics
- - SSH Key on IBM Cloud
+## Input variables
 
-## Variables
+|Input variable|Required/ optional|Data type|Description|
+|--|--|--|--|
+|`mysql_port`|Required|Number|MySQL port number|
+|`httpd_port`|Required|Number|Httpd port number|
+|`dbuser`|Required|String|User name for the mysql database|
+|`upassword`|Required|String|Password for the mysql database|
 
-| Variable Name | Description |	Default Value |
-| ----- | ----- | ----- |
-| vpc_name | Name of the VPC | |
-| ssh_key_name| SSH key name to connect to VSI | |
+## Running the playbook in Schematics by using UI
 
+1. Open the [Schematics action configuration page](https://cloud.ibm.com/schematics/actions/create?name=lampsimple&url=https://github.com/Cloud-Schematics/lamp-simple).
+2. Review the name for your action, and the resource group and region where you want to create the action. Then, click **Create**.
+3. Select the `site.yml` playbook.
+4. Select the **Verbosity** level to control the depth of information that will be shown when you run the playbook in Schematics.
+5. Expand the **Advanced options**.
+6. Enter all required input variables as key-value pairs. Then, click **Next**.
+7. Enter the bastion host ip, inventory and SSH key. Then, click **Next**. 
+8. Click **Check action** to verify your action details. The **Jobs** page opens automatically. You can view the results of this check by looking at the logs.
+9. Click **Run action** to deploy the LampStack. You can monitor the progress of this action by reviewing the logs on the **Jobs** page.
 
-## Running the playbook locally
- To run this example locally, create a hosts file in the root of the example folder and update it with the {target-host-ip}, {jump-server-ip} and respective ssh keys. Details of how to configure the host file manually can be found in the [Ansible documentation](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups). 
- The stack can be deployed using the following 
-- command:
-    - ansible-playbook site.yml -e "upassword={password}  dbname={database-name}  dbuser={database-user}  mysql_port=3306  httpd_port=80" -i hosts
+## Running the playbook in Schematics by using the command line
 
-## Running on IBM Cloud Schematics
+1. Create the Schematics action. Enter all the input variable values that you retrieved earlier. When you run this command and are prompted to enter a GitHub token, enter the return key to skip this prompt.
+   ```
+   ibmcloud schematics action create --name lampstack --location us-south --resource-group default --template https://github.com/Cloud-Schematics/lamp-simple --playbook-name site.yml --input "mysql_port": "<mysql_port>" --input "httpd_port": "<httpd_port>" --input "dbuser": "<dbuser>" --input "upassword": "<db_password>"
+   ```
 
-IBM Cloud Schematics supports running Ansible playbooks natively. You can try the same example through various entry points. 
+   Example output:
+   ```
+   Enter github-token>
+   The given --inputs option region: is not correctly specified. Must be a variable name and value separated by an equals sign, like --inputs key=value.
 
-### Running Actions using the IBM Cloud Schematics API
+   ID               us-south.ACTION.lampstack.1aa11a1a
+   Name             lampstack
+   Description
+   Resource Group   default
+   user State       live
 
-1. Create a file containing the Schematics Action payload. The Action payload is a json object. Start with `{}` and add the required fields. 
+   OK
+   ```
 
-    - Add basic information for action like `name`, `description`, the Schematics `location` you want the Action to be placed in, `resource_group` and tag for identification. Ensure that the Action `name` is unique.  
+2. Verify that your Schematics action is created and note the ID that was assigned to your action.
+   ```
+   ibmcloud schematics action list
+   ```
 
-    ```
-    "name": "Example-1",
-    "description": "This Action install LAMP stack on VSI using ansible",
-    "location": "us-east",
-    "resource_group": "Default",
-    "tags": [
-      "string"
-    ]
-    ```
+3. Create a job to run a check for your action. Replace `<action_ID>` with the action ID that you retrieved. In your CLI output, note the **ID** that was assigned to your job.
+   ```
+   ibmcloud schematics job create --command-object action --command-object-id <action_ID> --command-name ansible_playbook_check
+   ```
 
-    - Add the source repo for importing the Ansible playbooks. 
-    ```
-    "source_type": "GitHub", 
-    "source": {
-         "source_type" : "git",
-         "git" : {
-              "git_repo_url": "https://github.com/Cloud-Schematics/lamp-simple"
-         }
-    }
-    ```
-    - Add the playbook which should run by default when `run` is triggered. Any playbook from the source repo can be selected. 
-    ```
-    "command_parameter": "site.yml"
-    ```
+   Example output:
+   ```
+   ID                  us-south.JOB.lampstack.fedd2fab
+   Command Object      action
+   Command Object ID   us-south.ACTION.lampstack.1aa11a1a
+   Command Name        ansible_playbook_check
+   Name                JOB.lampstack.ansible_playbook_check.2
+   Resource Group      a1a12aaad12b123bbd1d12ab1a123ca1
+   ```
 
-    - Add the Credentials required o run the configuration. For deploying code to VSI's these will be the SSH private keys for the bastion host and target VSIs. All credentials should be added as `name` and `value` and will be referred in the target section with the same name.
-    ```
-    "credentials": [
-      {
-        "name": "ssh_key",
-        "value": "< SSH_KEY >",
-        "metadata": {
-          "type": "string",
-          "default_value": "",
-          "secure": true
-        }
-      }
-    ]
-    ```
-    - Add Bastion host information. Refer to the credentials provided in the above step in `cred_ref`.
-    ```
-    "bastion_ref": {
-      "name": "bastionhost",
-      "type": "string",
-      "description": "string",
-      "resource_query": "< BASITION_HOST_IP_ADDRESS >",
-      "credential_ref": "ssh_key"
-    }
-    ```
-    - Add inventory information. Refer the credentials provided in above step in `cred_ref`. Multiple groups with multiple host can be provided.The following inventory file 
-    ```
-    [webserverhost]
-    FIRST_WEB_SERVER_IP_ADDRESS
-    SECOND_WEB_SERVER_IP_ADDRESS
+4. Verify that your job ran successfully by retrieving the logs.
+   ```
+   ibmcloud schematics job logs --id <job_ID>
+   ```
 
-    [dbhost]
-    FIRST_DATABASE_SERVER_IP_ADDRESS
-    SECOND_DATABASE_SERVER_IP_ADDRESS
-    ```
-    can be represented as 
-    ```
-    "targets_ref": [
-      {
-        "name": "webserverhost",
-        "description": "Group of webservers",
-        "credential_ref": "ssh_key",
-        "bastion_ref": "bastionhost",
-        "target_resources": [
-          {
-            "resource_id": "< FIRST_WEB_SERVER_IP_ADDRESS >"
-          },
-           {
-            "resource_id": "< SECOND_WEB_SERVER_IP_ADDRESS >"
-          }
-        ]
-      },
-      {
-        "name": "dbhost",
-        "description": "Group of database servers",
-        "credential_ref": "ssh_key",
-        "bastion_ref": "bastionhost",
-        "target_resources": [
-          {
-            "resource_id": "< FIRST_DATABASE_SERVER_IP_ADDRESS >"
-          },
-           {
-            "resource_id": "< SECOND_DATABASE_SERVER_IP_ADDRESS >"
-          }
-        ]
-      }
-    ]
-    ```
-    - Add inputs variables required by the playbook. Keys can be marked `secure`.
-    ```
-    "inputs": [
-      {
-        "name": "upassword",
-        "value": "Abc@123abc",
-        "metadata": {
-          "type": "string",
-          "secure": true,
-          "default_value": "Abc@123abc"
-        }
-      },
-      {
-        "name": "dbname",
-        "value": "foodb",
-        "metadata": {
-          "type": "string",
-          "default_value": "foodb"
-        }
-      },
-      {
-        "name": "dbuser",
-        "value": "root",
-        "metadata": {
-          "type": "string",
-          "default_value": "root"
-        }
-      },
-      {
-        "name": "mysql_port",
-        "value": "3306",
-        "metadata": {
-          "type": "string",
-          "default_value": "3306"
-        }
-      },
-      {
-        "name": "httpd_port",
-        "value": "80",
-        "metadata": {
-          "type": "string",
-          "secure": false,
-          "default_value": "80"
-        }
-      }
-    ]
-    ```
+5. Create another job to run the action. Replace `<action_ID>` with your action ID.
+   ```
+   ibmcloud schematics job create --command-object action --command-object-id <action_ID> --command-name ansible_playbook_run
+   ```
 
-2. Create action by making a http request.
-    - Headers: 
-    Authorization : < Bearer ...>
-    - Method: POST
-    - ENDPOINT: `https://schematics.cloud.ibm.com/v2/actions`
+6. Verify that your job ran successfully by retrieving the logs.
+   ```
+   ibmcloud schematics job logs --id <job_ID>
+   ```
 
 
-3. Note the `ID` from step 1 and check the status of action by making http request. 
-    - Headers: 
-    Authorization : < Bearer ...>
-    - Method: GET
-    - ENDPOINT: `https://schematics.cloud.ibm.com/v2/actions/<ID>`
-
-4. Verify if the action is in `normal` state. 
-    ```
-    "state": {  
-        "status_code": "normal",
-        "status_message": "Action is normal and ready for execution"
-    }
-    ```
-5. Create Job with a http request. Modify the payload with the `ID` received in step 1. 
-    - Headers: 
-    Authorization : < Bearer ...>
-    - Method: GET
-    - ENDPOINT: `https://schematics.cloud.ibm.com/v2/jobs`
-
-    ```
-    {
-        "command_object": "action",
-        "command_object_id": "< ACTION_ID >",
-        "command_name": "ansible_playbook_run"
-    }
-    ```
-
-6. Check logs with a http request. Use the `ID` from step 4. 
-    - Headers: 
-    Authorization : < Bearer ...>
-    - Method: GET
-    - ENDPOINT: `https://schematics.cloud.ibm.com/v2/jobs/<JOB-ID>/logs`
-
-## Outputs
+## Verification
 
 Check the job logs for of TASK: `Display Index page content`. The content should give List of Databases and the host name if everything completed successfully.
 
@@ -235,6 +114,14 @@ ASK [Display Index page content] ***********************************************
  2021/01/12 10:01:18 ansible-playbook run |     "output.content": "<html>\n <head>\n  <title>Ansible Application</title>\n </head>\n <body>\n </br>\n  <a href=http://172.22.192.6/index.html>Homepage</a>\n </br>\n </br>\n  <a href=http://172.22.192.6/about.html>About Us</a>\n </br>\nHello, World! I am a web server configured using Ansible and I am : vsi2</BR>List of Databases: </BR>foodb\nhelp\ninformation_schema\nmysql\nperformance_schema\nsys\n</body>\n</html>\n\n"
  2021/01/12 10:01:18 ansible-playbook run | }
 ```
-## References
 
-- For MySQL installation we are using this [url](https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm)
+## Reference
+
+Review the following links to find more information about Schematics and Lampstack
+
+- [IBM Cloud Schematics documentation](https://cloud.ibm.com/docs/schematics)
+- [LampStack](https://www.ibm.com/cloud/learn/lamp-stack-explained)
+
+## Getting help
+
+For help and support with using this template in IBM Cloud Schematics, see [Getting help and support](https://cloud.ibm.com/docs/schematics?topic=schematics-schematics-help).
