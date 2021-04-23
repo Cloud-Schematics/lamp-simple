@@ -58,7 +58,11 @@ You must retrieve the following values to run the playbook in IBM Cloud Schemati
      ```
      **Note**
      You can either create dynamic or Static inventory host group. Dynamic and static inventory creations are shown in the screen capture.
+     **Sample Dynamic host group creation**
+
      ![Dynamic host group creation](/images/dyn_invgrp.png)
+
+     **Sample static host group with resource query creation**
 
      ![Static host group with resource query creation](/images/static_inv.png)
 
