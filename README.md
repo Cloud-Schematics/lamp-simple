@@ -35,13 +35,13 @@ You must retrieve the following values to run the playbook in IBM Cloud Schemati
 |--|--|--|--|
 |`upassword`|Required|String|Enter a password for your MySQL user, according to MySQL password policy. For example, `Abc@123abc`.|
 |`dbname`|Optional|String|Enter the name that you want to use for your MySQL database. The default database name is `mysqldb`. |
-|`dbuser`|Ootional|String|Enter a username that you want to set up for your MySQL database. The default user is `root`.|
+|`dbuser`|Optional|String|Enter a username that you want to set up for your MySQL database. The default user is `root`.|
 |`mysql_port`|Optional|String|Enter the port number that your MySQL database listens on. The default port is 3306.|
 |`httpd_port`|Optional|String|Enter the port number that your Apache HTTP Webserver listens on. The default port is 80.|
 ​
 ## Running the playbook in Schematics by using the UI
-​
-​1. Open the [Schematics action configuration page](https://cloud.ibm.com/schematics/actions/create?name=lamp-simple&url=https://github.com/Cloud-Schematics/ansible-lamp-simple).
+
+1. Open the [Schematics action configuration page](https://cloud.ibm.com/schematics/actions/create?name=lamp-simple&url=https://github.com/Cloud-Schematics/ansible-lamp-simple).
 2. Review the name for your action, and the resource group and region where you want to create the action. Then, click **Create**.
 3. Select the `site.yml` playbook.
 4. Select the **Verbosity** level to control the depth of information are shown when you run the playbook in Schematics.
