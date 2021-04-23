@@ -36,8 +36,8 @@ You must retrieve the following values to run the playbook in IBM Cloud Schemati
 |`upassword`|Required|String|Enter a password for your MySQL user, according to MySQL password policy. For example, `Abc@123abc`.|
 |`dbname`|Optional|String|Enter the name that you want to use for your MySQL database. The default database name is `mysqldb`. |
 |`dbuser`|Optional|String|Enter a username that you want to set up for your MySQL database. The default user is `root`.|
-|`mysql_port`|Optional|String|Enter the port number that your MySQL database listens on. The default port is 3306.|
-|`httpd_port`|Optional|String|Enter the port number that your Apache HTTP Webserver listens on. The default port is 80.|
+|`mysql_port`|Optional|String|Enter the port number that your MySQL database listens on. The default port is `3306`.|
+|`httpd_port`|Optional|String|Enter the port number that your Apache HTTP Webserver listens on. The default port is `80`.|
 ​
 ## Running the playbook in Schematics by using the UI
 
@@ -58,6 +58,7 @@ You must retrieve the following values to run the playbook in IBM Cloud Schemati
      ```
      **Note**
      You can either create dynamic or Static inventory host group. Dynamic and static inventory creations are shown in the screen capture.
+
      **Sample Dynamic host group creation**
 
      ![Dynamic host group creation](/images/dyn_invgrp.png)
@@ -129,7 +130,7 @@ Check the job logs for list of task such as `TASK Display Index page content` as
 
 ## Delete an action
 ​
-1. From the [Schematics actions dashboard](https://cloud.ibm.com/schematics/actions){: external}, find the action that you want to delete.
+1. From the [Schematics actions dashboard](https://cloud.ibm.com/schematics/actions), find the action that you want to delete.
 2. From the actions menu, click **Delete**.
 ​
 
