@@ -58,9 +58,9 @@ You must retrieve the following values to run the playbook in IBM Cloud Schemati
      ```
      **Note**
      You can either create dynamic or Static inventory host group. Dynamic and static inventory creations are shown in the screen capture.
-     ![Dynamic host group creation](/images/dyn_inv.png)
+     ![Dynamic host group creation](/images/dyn_invgrp.png)
 
-     ![Static host group creation](/images/dyn_inv.png)
+     ![Static host group with resource query creation](/images/static_inv.png)
 
    - **IBM Cloud resource inventory SSH key** Enter the private SSH key that you want to use to connect to your virtual servers. The private SSH key must match the public key that you added to the virtual server when you created it. If you stored the private key on your local workstation, you can run `cat ~/.ssh/id_rsa` to see the private key. **Note** You can run  `pbcopy < ~/.ssh/id_rsa` to copy entire private SSH key and paste.
 
